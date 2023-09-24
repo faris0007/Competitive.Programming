@@ -1,1 +1,79 @@
+https://codeforces.com/edu/course/2/lesson/9/3/practice/contest/307094/problem/I
 
+struct stack {
+    vector<bitset<2000>> dp_stack;
+    vector<ll> v;
+    void push(ll x) {
+        v.push_back(x);
+        bitset<2000> z;
+        z[0] = 1;
+        if (!dp_stack.size())dp_stack.push_back(z);
+        z = dp_stack.back();
+        dp_stack.push_back(z | (z << x));
+    }
+ 
+    ll pop() {
+        ll ret = v.back();
+        v.pop_back();
+        dp_stack.pop_back();
+        return ret;
+    }
+ 
+    bool empty() {
+        return v.empty();
+    }
+ 
+    bitset<2000> seet() {
+        bitset<2000> z;
+        z[0] = 1;
+        if (!dp_stack.size())dp_stack.push_back(z);
+        return dp_stack.back();
+    }
+};
+ 
+::stack s1 ,s2;
+ 
+void add(ll x){
+    s2.push(x);
+}
+ 
+void remove() {
+    if (s1.empty()) {
+        while (!s2.empty()) {
+            s1.push(s2.pop());
+        }
+    }
+    s1.pop();
+}
+ll k;
+bool check() {
+    auto fir = s1.seet();
+    auto sec = s2.seet();
+    for (int i = 0; i <= k; ++i) {
+        if (fir[i] & sec[k - i])return true;
+    }
+    return false;
+}
+ 
+void solve() {
+ 
+    ll n, ans = oo;
+    cin >> n >> k;
+    vi a(n);
+    for (int i = 0; i < a.size(); ++i) cin >> a[i];
+    ll i = 0, j = -1;
+    while (j < n && i < n) {
+        if (!check()) {
+            j++;
+            add(a[j]);
+        } else {
+            if (check()) {
+                ans = min(ans, j - i + 1);
+            }
+            remove();
+            i++;
+        }
+    }
+    if(ans==oo)ans=-1;
+    cout << ans << endl;
+}
