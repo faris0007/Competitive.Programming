@@ -1,1 +1,80 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////single hash
+vi  pw(1e6+9);				// size of string   imp 
+vi inv(1e6+9);
+ll add(ll a, ll b) {
+    return ((a % MOD + b % MOD) + MOD) % MOD;
+}
 
+ll multi(ll a, ll b) {
+    return ((a % MOD * b % MOD) + MOD) % MOD;
+}
+
+ll minu(ll a, ll b) {
+    return ((a % MOD - b % MOD) + MOD) % MOD;
+}
+
+ll fastpow(ll a, ll b) {
+    if (b == 0)return ll(1);
+    ll temp = fastpow(a, b / 2);
+    ll total = multi(temp, temp);
+    if (b % 2 == 1) {
+        total = multi(total, a);
+    }
+    return total;
+}
+
+void pre(ll base) {
+    pw[0] = 1;
+    inv[0] = 1;
+    ll mul_inv = fastpow(base, MOD - 2);
+    for (int i = 1; i < 1e6+9; ++i) {			 ///////////////////////////////////// sizoooooooo
+        pw[i] = multi(pw[i - 1], base);
+        inv[i] = multi(inv[i - 1], mul_inv);
+    }
+}
+
+void make_hash(string &x, vi &prifx) {
+    for (int i = 0; i < x.size(); ++i) {
+        ll ind = x[i] - 'a' + 1;   				 // if lower case  impor
+        prifx[i] = multi(ind, pw[i]);
+        if (i > 0) {
+            prifx[i] = add(prifx[i], prifx[i - 1]);
+        }
+    }
+}
+
+ll get_value(ll fir, ll sec, vi &prifx) {    /// if fir =0  sec=size-1   all value     ;;  zero based;
+    if(fir==0)
+        return prifx[sec];
+    return multi(minu(prifx[sec],prifx[fir-1]),inv[fir]);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////douple 
+
+void pre() {
+    pw[0] = 1;
+    inv[0] = 1;
+    pw2[0] = 1;
+    inv2[0] = 1;
+    ll mul_inv = fastpow(29, MOD - 2);
+    ll mul_inv2 = fastpow(31, MOD - 2);
+    for (int i = 1; i < 1e5+9; ++i) {       ///////////////////////////////////// sizoooooooo
+        pw[i] = multi(pw[i - 1], 29);
+        inv[i] = multi(inv[i - 1], mul_inv);
+        pw2[i] = multi(pw2[i - 1], 31);
+        inv2[i] = multi(inv2[i - 1], mul_inv2);
+    }
+}
+void make_hash(string &x, vi &prifx , vi &pw ,vi &inv) {
+    for (int i = 0; i < x.size(); ++i) {
+        ll ind = x[i] - 'a' + 1;   			 // if lower case   //  this fun for two hash because each base has value pw ,inv ;
+        prifx[i] = multi(ind, pw[i]);  
+        if (i > 0) {								
+            prifx[i] = add(prifx[i], prifx[i - 1]);
+        }
+    }
+}
+ll get_value(ll fir, ll sec, vi &prifx, vi &pw ,vi &inv) {
+    if(fir==0)
+        return prifx[sec];
+    return multi(minu(prifx[sec],prifx[fir-1]),inv[fir]);
+}
