@@ -1,1 +1,63 @@
 https://atcoder.jp/contests/abc311/tasks/abc311_g
+
+vii sum,mat; ll n, m;
+ll get(ll x1,ll x2,ll y1 ,ll y2) {
+    ll res= sum[x2][y2] - sum[x1 - 1][y2] - sum[x2][y1 - 1] + sum[x1 - 1][y1 - 1];
+    return res;
+}
+int zero_matrix(vector<vector<int>> a,ll mn) {
+    int ans = 0;
+    vector<int> d(m+1, 0), d1(m+1), d2(m+1);
+    stack<int> st;
+    for (int i = 1; i <= n; ++i) {
+
+        for (int j = 1; j <= m; ++j) {
+            if (a[i][j] == 1)
+                d[j] = i;
+        }
+        for (int j = 1; j <= m; ++j) {
+            while (!st.empty() && d[st.top()] <= d[j])
+                st.pop();
+            d1[j] = st.empty() ? 0 : st.top();
+            st.push(j);
+        }
+        while (!st.empty())
+            st.pop();
+        for (int j = m; j > 0; --j) {
+            while (!st.empty() && d[st.top()] <= d[j])
+                st.pop();
+            d2[j] = st.empty() ? m +1 : st.top();
+            st.push(j);
+        }
+        while (!st.empty())
+            st.pop();
+        for (int j = 1; j <= m; ++j) {
+            ll z=get(d[j]+1, i, d1[j]+1, d2[j]-1);
+            ans = max(ans, get(d[j] + 1, i, d1[j] + 1, d2[j] - 1) * mn);
+        }
+    }
+    return ans;
+}
+void solve() {
+
+   ll ans = 0;
+    cin >> n >> m;
+    sum = mat = vii(n + 1, vi(m + 1));
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= m; ++j) {
+            cin >> mat[i][j];
+            sum[i][j] = mat[i][j] + sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1];
+        }
+    }
+    for (int mn = 0; mn <= 300; ++mn) {
+        vii tmp = mat;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                if (mat[i][j] >= mn)tmp[i][j] = 0;
+                else tmp[i][j] = 1;
+            }
+        }
+        ans = max(ans, zero_matrix(tmp, mn));
+    }
+    cout << ans << endl;
+}
