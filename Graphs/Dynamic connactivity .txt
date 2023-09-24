@@ -1,1 +1,98 @@
-
+//const int N = 10;
+int components = 0;
+vector<vector<pair<int, int>>> segments(N*4+5);
+vector<int> answers(N);
+ 
+int parent[N], myrank[N];
+stack<pair<int, int>> st;
+ 
+void initialize(int m)
+{
+    for (int i = 1; i <= m; i++)
+        parent[i] = i, myrank[i] = i;
+}
+int findroot(int x)
+{
+    return (parent[x] == x) ? x : findroot(parent[x]);
+}
+void merge(int u, int v)
+{
+    u = findroot(u), v = findroot(v);
+    if (u != v) components--;
+    if (myrank[u] > myrank[v]) swap(u, v);
+    st.push({u, myrank[v]});
+    parent[u] = v;
+    if (u != v && myrank[u] == myrank[v]) // could be equal
+        myrank[v]++;
+}
+void rollback()
+{
+    int u = st.top().first, oldvrank = st.top().second; st.pop();
+    int newparent = findroot(u);
+    if (newparent != u) components++;
+    parent[u] = u;
+    myrank[newparent] = oldvrank;
+}
+ 
+void addsegment(int node, int l, int r, int st, int en, pair<int, int> p)
+{
+    if (l >= st && r <= en)
+        return void(segments[node].push_back(p));
+    if (l > en || r < st) return;
+    int mid = (l+r)/2;
+    addsegment(node*2, l, mid, st, en, p);
+    addsegment(node*2+1, mid+1, r, st, en, p);
+}
+ 
+void dfs(int node, int l, int r)
+{
+    for (auto p : segments[node])
+        merge(p.first, p.second);
+    if (l == r)
+        answers[l] = components;
+    else
+    {
+        int mid = (l+r)/2;
+        dfs(node*2, l, mid);
+        dfs(node*2+1, mid+1, r);
+    }
+    for (int i = 0; i < segments[node].size(); i++)
+        rollback();
+}
+ 
+void solve(int kkkk, int tttt)
+{
+    int n; cin >> n; int m, k; cin >> m >> k;
+    components = n;
+    initialize(n);
+    map<int, map<int, int>> mapp;
+ 
+    for (int i = 0; i < m; i++)
+    {
+        int x, y; cin >> x >> y;
+        if (x > y) swap(x, y);
+        mapp[x][y] = 0;
+    }
+ 
+    for (int i = 1; i <= k; i++)
+    {
+        int type; cin >> type;  int x, y; cin >> x >> y;
+        if (x > y) swap(x, y);
+        if (type == 1)
+            mapp[x][y] = i;
+        else
+        {
+            addsegment(1, 0, k, mapp[x][y], i-1, {x, y});
+            mapp[x].erase(y);
+        }
+    }
+    for (auto x : mapp)
+        for (auto y : x.second)
+            addsegment(1, 0, k, mapp[x.first][y.first], k, {x.first, y.first});
+    dfs(1, 0, k);
+ 
+    for (int i = 0; i <= k; i++)
+        cout << answers[i] << " ";
+    cout << endl;
+}
+ 
