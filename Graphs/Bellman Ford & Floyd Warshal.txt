@@ -1,1 +1,24 @@
+void floyed_warshal(vii &dis,ll n){
+ 
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
+            }
+ 
+        }
+    }
+}
 
+    for (int i = 0; i < m; ++i) {
+        cin >> x >> y >> w;
+        adj[x][y] = min(w,adj[x][y]);
+        adj[y][x] = min(w,adj[y][x]);
+    }
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (i == j) dis[i][j] = 0;
+            else if (adj[i][j]) { dis[i][j] = adj[i][j]; }
+            else dis[i][j] = oo;
+        }
+    }
