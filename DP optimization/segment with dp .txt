@@ -1,1 +1,38 @@
+Flower 3 Atcoder
+///// Agamista
+const int N=5e5;
+ll seg[N<<2];
+void update(ll node,ll l ,ll r,ll idx,ll val) {
+    if (l == r) {
+        seg[node] = val;
+        return;
+    }
+    ll mid = (l + r) / 2;
+    if (idx <= mid) update(node * 2, l, mid, idx, val);
+    else update(node * 2 + 1, mid + 1, r, idx, val);
+    seg[node] = max(seg[node * 2] , seg[node * 2 + 1]);
+}
+ll query(ll node,ll l ,ll r,ll st, ll en) {
+    ll mid = (l + r) / 2;
+    if (st > r || en < l)return 0;
+    if (l >= st && r <= en)return seg[node];
+    return max(query(node * 2, l, mid, st, en), query(node * 2 + 1, mid + 1, r, st, en));
+}
 
+void solve() {
+
+    ll n;
+    cin >> n;
+    vi h(n), val(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> h[i];
+    }
+    for (int i = 0; i < n; ++i) {
+        cin >> val[i];
+    }
+    for (int i = 0; i < n; ++i) {
+        ll bef = query(1, 0, n, 0, h[i] - 1);
+        update(1, 0, n, h[i], val[i] + bef);
+    }
+    cout << query(1, 0, n, 0, n) << endl;
+}
