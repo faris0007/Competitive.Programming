@@ -1,1 +1,14 @@
-
+viip adj;
+vi path;
+vi vis(N);
+void euler(ll node) {
+    while (!adj[node].empty()) {
+        ll nod = adj[node].back().first;
+        ll ind = adj[node].back().second;
+        adj[node].pop_back();
+        if (vis[ind])continue;
+        vis[ind] = true;
+        euler(nod);
+    }
+    path.push_back(node);
+}
