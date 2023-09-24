@@ -1,1 +1,36 @@
-
+const int N = 5e5;
+vi conv(ll n,ll add) {
+    vi a;
+    while (n) {a.push_back(n % 10);n /= 10;}
+    ll z = a.size();
+    for (int i = 0; i < add - z; ++i) {a.push_back(0);}
+    reverse(all(a));
+    return a;
+}
+vi nl,nr,res;
+ll dp[20][2][2][10][2],ans;
+ll fun(ll i,ll st,ll en, ll lst,ll zelead) {
+    if (i == nr.size()) { return 1; }
+    if (dp[i][st][en][lst][zelead] != -1)return dp[i][st][en][lst][zelead];
+    ll opt1 = 0;
+    ll f1 = (st) ? nl[i] : 0;
+    ll f2 = (en) ? nr[i] : 9;
+    for (int j = f1; j <= f2; ++j) {
+        if (lst == j && !zelead)continue;
+        ll tst = (j == nl[i]);
+        ll ten = (j == nr[i]);
+        opt1 += fun(i + 1, st && tst, en && ten, j, zelead && j == 0);
+    }
+    return dp[i][st][en][lst][zelead] = opt1;
+}
+ 
+void solve() {
+    res.clear();
+    memset(dp, -1, sizeof(dp));
+    ll l, r;
+    cin >> l >> r;
+    nr = conv(r, 0);
+    nl = conv(l, nr.size());
+    ans = fun(0, 1, 1, -1, 1);
+    cout << ans << endl;
+}
