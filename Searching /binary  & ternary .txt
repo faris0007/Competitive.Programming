@@ -1,1 +1,42 @@
 
+ll getlower(ll n,ll i ,ll x){
+    ll st=1;
+    ll en=n;
+    while (st<en){
+        ll mid=st+(en-st)/2;
+        if(fun(mid)){
+            en=mid;
+        }
+        else{
+            st=mid+1;
+        }
+    }
+    return st;
+}
+ll getupper(ll n,ll i ,ll x){
+    ll st=1;
+    ll en=n;
+    while (st<en){
+        ll mid=st+(en-st+1)/2;
+        if(fun(mid)){
+            st=mid;
+        }
+        else{
+            en=mid-1;
+        }
+    }
+    return en;
+}
+
+
+
+    while (en - st >= 3) {
+        ll mid1 = st + ((en - st) / 3);
+        ll mid2 = en - ((en - st) / 3);
+        if (fun(mid1, a, b) < fun(mid2, a, b)) {
+            en = mid2;
+        } else {
+            st = mid1;
+        }
+    }
+ 
