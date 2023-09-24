@@ -1,1 +1,25 @@
-
+void dfs(int node) {
+    vis[node] = true;
+    inStack[node] = true;
+    stk.push(node);
+    dfsNum[node] = lowLink[node] = tim++;
+    for (int nei: adj[node]) {
+        if (!vis[nei]) {
+            dfs(nei);
+            lowLink[node] = min(lowLink[node], lowLink[nei]);
+        } else if (inStack[nei])
+            lowLink[node] = min(lowLink[node], dfsNum[nei]);
+    }
+    if (dfsNum[node] == lowLink[node]) {
+        vector<int> comp;
+        ll acuml = 0;
+        while (stk.top() != node) {
+            int pop = stk.top();
+            stk.pop();inStack[pop] = false;comp.push_back(pop);
+            mp[pop] = inx;acuml += cost[pop];
+        }
+        int pop = stk.top();acuml += cost[pop];stk.pop();
+        mp[pop] = inx;sums[inx] = acuml;inStack[pop] = false;
+        comp.push_back(pop);inx++;
+    }
+}
