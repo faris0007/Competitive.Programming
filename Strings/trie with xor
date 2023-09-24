@@ -1,1 +1,65 @@
-
+const int N = 5 * 1e5;
+struct Node{
+    Node *nxt[3];
+    ll cnt;
+    Node(){
+        memset(nxt,0,sizeof nxt);
+        cnt=0;
+    }
+}*head;
+void insert(vi &s) {
+    Node *cur = head;
+    for (int i = 0; i < s.size(); ++i) {
+        if (!cur->nxt[s[i]]) {
+            cur->nxt[s[i]] = new Node();
+        }
+        cur = cur->nxt[s[i]];
+        cur->cnt++;
+    }
+}
+ll  query(vi &s) {
+    Node *cur = head;
+    ll mx = 0;
+    for (int i = 0; i < s.size(); ++i) {
+        if (cur->nxt[1 - s[i]]) {
+            mx |= (1 << (31-i));
+            cur = cur->nxt[1 - s[i]];
+        } else
+            cur = cur->nxt[s[i]];
+    }
+    return mx;
+}
+vi binary(ll n) {
+    vi a(32, 0);
+    ll i = 31;
+    while (n) {
+        a[i--] = n % 2;
+        n /= 2;
+    }
+    return a;
+}
+ 
+void solve() {
+    head = new Node();
+    ll n;
+    cin >> n;
+    vi a(n);
+    ll maxo = 0;
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
+        maxo = max(maxo, a[i]);
+    }
+    for (int i = 1; i < n; ++i) {
+        a[i] ^= a[i - 1];
+    }
+    vi aa = binary(a[n - 1]);
+    insert(aa);
+    maxo= max(maxo,a[n-1]);
+    for (int i = n - 2; i >= 0; --i) {
+        vi aa = binary(a[i]);
+        ll vv = query(aa);
+        maxo = max(maxo, vv);
+        insert(aa);
+    }
+    cout << maxo << endl;
+}
