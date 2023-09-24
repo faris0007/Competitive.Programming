@@ -1,1 +1,30 @@
 
+ll seg[N<<2];
+ll arr[N];
+
+void Build_seg(ll node,ll l , ll r) {
+    if (l == r) {
+        seg[node] = arr[l];
+        return;
+    }
+    ll mid = (l + r) / 2;
+    Build_seg(node * 2, l, mid);
+    Build_seg(node * 2 + 1, mid + 1, r);
+    seg[node] = seg[node * 2] + seg[node * 2 + 1];
+}
+void update(ll node,ll l ,ll r,ll idx,ll val) {
+    if (l == r) {
+        seg[node] = val;
+        return;
+    }
+    ll mid = (l + r) / 2;
+    if (idx <= mid) update(node * 2, l, mid, idx, val);
+    else update(node * 2 + 1, mid + 1, r, idx, val);
+    seg[node] = seg[node * 2] + seg[node * 2 + 1];
+}
+ll query(ll node,ll l ,ll r,ll st, ll en) {
+    ll mid = (l + r) / 2;
+    if (st > r || en < l)return 0;
+    if (l >= st && r <= en)return seg[node];
+    return query(node * 2, l, mid, st, en) + query(node * 2 + 1, mid + 1, r, st, en);
+}
