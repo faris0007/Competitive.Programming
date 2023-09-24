@@ -1,1 +1,34 @@
-
+ll n;
+vii adj;
+ll add(ll a, ll b) {
+    return ((a % MOD + b % MOD) + MOD) % MOD;
+}
+ 
+ll fun(ll node,ll msk,vii &dp) {
+    if (__builtin_popcount(msk) == n)
+        return node == n - 1;
+    if (node == n - 1)return 0;
+    if (dp[node][msk] != -1)
+        return dp[node][msk];
+    ll ans = 0;
+    for (auto it: adj[node]) {
+        if (msk & (1 << it))continue;
+        ans = add(ans, fun(it, msk | (1 << it), dp));
+    }
+    return dp[node][msk] = ans;
+}
+ 
+void solve() {
+    cin >> n;
+    ll m;
+    cin >> m;
+    adj.resize(n + 1);
+    vii dp(n, vi(1 <<n, -1));
+    for (int i = 0; i < m; ++i) {
+        ll u, v;
+        cin >> u >> v;
+        u--, v--;
+        adj[u].push_back(v);
+    }
+    cout << fun(0, 1, dp) << endl;
+}
