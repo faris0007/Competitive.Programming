@@ -1,1 +1,15 @@
-
+vii  adj;
+vi edge_cost;
+vi lvl(N,0),sub(N,1),eul,in(N);
+ 
+void euler(ll node,ll par,ll &time) {
+    in[node] = time++;
+    eul.push_back(node);
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        lvl[ch] = lvl[node] + 1;
+        euler(ch, node, time);
+        sub[node] += sub[ch];
+ 
+    }
+}
