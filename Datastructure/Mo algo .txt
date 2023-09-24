@@ -1,1 +1,51 @@
 
+
+ll block;
+struct query {
+    ll l, r, idx;
+};
+bool cmp(query &a, query &b) {
+    if (a.l / block != b.l / block)
+        return a.l / block < b.l / block;
+    return a.r < b.r;
+}
+void add(ll i,vi &mp,vi &a,ll &sum) {
+    sum -= mp[a[i]] * mp[a[i]] * a[i];           // mp is freq map           a is array 
+    mp[a[i]]++;
+    sum += mp[a[i]] * mp[a[i]] * a[i];
+}
+ 
+void remove(ll i,vi &mp,vi &a,ll &sum) {
+    sum -= mp[a[i]] * mp[a[i]] * a[i];
+    mp[a[i]]--;
+    sum += mp[a[i]] * mp[a[i]] * a[i];
+}
+cin >> n>> q;
+    vi a(n);
+    vi mp(1e6+5,0);
+    block = (ll) sqrt(n) + 1;
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
+    }
+    vector<query> vec(q);
+    for (int i = 0; i < q; ++i) {
+        cin >> vec[i].l >> vec[i].r;
+        vec[i].l--, vec[i].r--;
+        vec[i].idx = i;
+    }
+    sort(all(vec), cmp);
+    vector<ll> res(q);
+    int l = 0, r = -1;
+    ll sum=0;
+    for (int i = 0; i <vec.size() ; ++i) {
+        query x = vec[i];
+        while (l > x.l)add(--l, mp, a, sum);
+        while (r < x.r)add(++r, mp, a, sum);
+        while (l < x.l)remove(l++, mp, a, sum);
+        while (r > x.r)remove(r--, mp, a, sum);
+        res[x.idx] = sum;
+    }
+    for (int i = 0; i < q; ++i) {
+        cout << res[i] << endl;
+    }
+ 
