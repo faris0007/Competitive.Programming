@@ -1,1 +1,17 @@
 
+ll dp[20][262222];
+ll  rec(ll inx1,ll msk) {
+        ll bouns;
+    if (__builtin_popcount(msk) == m) {
+        return 0;
+    }
+    if (dp[inx1][msk] != -1)return dp[inx1][msk];
+        ll opt1=0;
+    foor(i,0,n){
+        if(msk &(1<<i))continue;
+            bouns=mp[{inx1+1,i+1}];
+        opt1= max(opt1, rec(i, msk | (1<<i))+bouns+ numrs[i]);
+    }
+    return dp[inx1][msk]=opt1;
+}
+ 
