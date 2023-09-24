@@ -1,1 +1,61 @@
+dptree mx 
+void pre(ll node,ll par,vi &depth,vii &adj) {
+    ///// to get depth
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        pre(ch, node, depth, adj);
+        depth[node] = max(1 + depth[ch], depth[node]);
+    }
+}
+void dfs(ll node,ll par,ll par_ans,vi &dp,vi &depth,vii &adj) {
+ 
+    vi prfx, sufx;
+    ll chs = 0;
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        prfx.push_back(depth[ch]);
+        sufx.push_back(depth[ch]);
+        chs++;
+    }
+    for (int i = 1; i < prfx.size(); ++i) { prfx[i] = max(prfx[i], prfx[i - 1]); }
+    for (int i = sufx.size() - 2; i >= 0; --i) { sufx[i] = max(sufx[i], sufx[i + 1]); }
+ 
+    ll cnt = 0;
+    ///// number of current ch to exclude it
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        ll bef = (cnt == 0) ? -oo : prfx[cnt - 1];
+        ll aft = (cnt == chs - 1) ? -oo : sufx[cnt + 1];
+        ll now_ans = 1 + max3(par_ans, bef, aft);
+        dfs(ch, node, now_ans, dp, depth, adj);
+        cnt++;
+    }
+    dp[node] = 1 + max(par_ans, (!chs ? -1 : prfx.back()));
+}
 
+
+
+
+
+dptree sum to all  nodes 
+ll n;
+void pre(ll node,ll par,vi &depth,vi &sub,vii &adj) {
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        pre(ch, node, depth, sub, adj);
+        sub[node] += sub[ch];
+        depth[node] += sub[ch] + depth[ch];
+    }
+}
+void dfs(ll node,ll par,ll par_ans,vi &dp,vi &depth,vi &sub,vii &adj) {
+    ///// array dp to get ans
+    //// array sub ro get num of Subordinates
+    //// array depth to get sum of all me to my sub tree
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        ll now_ans = par_ans + (n - sub[node]) + (depth[node] - depth[ch] - sub[ch]) + (sub[node] - sub[ch]);
+        dfs(ch, node, now_ans, dp, depth, sub, adj);
+    }
+    dp[node] = par_ans + depth[node];
+}
+ 
