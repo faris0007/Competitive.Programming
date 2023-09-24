@@ -1,1 +1,44 @@
 
+const int N = 5 * 1e5;
+const int M = 30;
+ll ansector[N][M];
+ll lvl[N];
+vii adj;
+void dfs(ll node, ll par) {
+    ansector[node][0] = par;
+    lvl[node] = lvl[par] + 1;
+    for (int i = 1; i < M; ++i) {
+        ansector[node][i] = ansector[ansector[node][i - 1]][i - 1];
+    }
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        dfs(ch, node);
+    }
+}
+ 
+ll findKthAncestor(ll u, ll k) {
+    for (int i = M - 1; i >= 0; --i) {
+        if ((1 << i) & k)
+            u = ansector[u][i];
+    }
+    return u;
+}
+ 
+ll LCA(ll u, ll v) {
+    if (lvl[u] < lvl[v])
+        swap(u, v);
+    u = findKthAncestor(u, lvl[u] - lvl[v]);
+    if (u == v)return v;
+ 
+    for (int i = M - 1; i >= 0; --i) {
+        if (ansector[u][i] == ansector[v][i])continue;
+        u = ansector[u][i];
+        v = ansector[v][i];
+    }
+    return ansector[u][0];
+}
+ 
+ll dis(ll u ,ll v ) {
+    return lvl[u] + lvl[v] - 2 * lvl[LCA(u, v)];
+}
+ 
