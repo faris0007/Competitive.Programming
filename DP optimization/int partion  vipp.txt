@@ -1,1 +1,34 @@
-
+// handle the dp with bitsit and remove repeated elements to solve it in N*root(N) if the sum (ai)<=N
+vector<int>values;
+template<int len = 1>
+ll solve2(int total){
+    if(total>=len){
+        return solve2<min(len*2,N)>(total);
+    }
+    bitset<len>dp;
+    dp[0]=1;
+    for (int i = 0; i < values.size(); ++i) {
+        dp=dp|(dp<<values[i]);
+    }
+    auto item=dp._Find_next(total/2-1);
+    return item*(total-item);
+}
+ll solve(vector<int>&vec,int total){
+    sort(vec.begin(),vec.end());
+ 
+    values.clear();
+    for (int i = 0; i < vec.size(); ++i) {
+        ll counter=1;
+        while (i<vec.size()-1&&vec[i]==vec[i+1]){
+            i++,counter++;
+        }
+        ll st=1;
+        while (st<counter){
+            values.push_back(st*vec[i]);           
+            counter-=st;
+            st*=2;
+        }
+        values.push_back(counter*vec[i]);
+    }
+    return solve2(total);
+}
