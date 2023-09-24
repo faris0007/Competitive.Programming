@@ -1,1 +1,49 @@
+cp algo Hld 
 
+ll dfs(ll x,ll p,vector<vector<int>> & adj ) {
+    parent[x] = p;ll sz = 1, mx = 0;
+    for (auto c: adj[x]) {
+        if (p == c)continue;
+        depth[c] = depth[x] + 1;
+        ll csz = dfs(c, x, adj);
+        sz += csz;
+        if (csz > mx) {
+            mx = csz;
+            heavy[x] = c;
+        }
+    }
+    return sz;
+}
+void decompose(ll x,ll h,vector<vector<int>> & adj) {
+    head[x] = h, pos[x] = cur_pos++;
+    if (heavy[x] != -1)decompose(heavy[x], h, adj);
+    for (auto c: adj[x]) {
+        if (parent[x] == c || c == heavy[x])continue;
+        decompose(c, c, adj);
+    }
+}
+void init(vector<vector<int>> & adj) {
+    n = adj.size();
+    parent = vector<int>(n);
+    depth = vector<int>(n);
+    heavy = vector<int>(n, -1);
+    head = vector<int>(n);
+    pos = vector<int>(n);
+    cur_pos = 1 ;
+    dfs(1, 0, adj);
+    decompose(1, 1, adj);
+}
+int query(int a, int b) {
+    int res = 0;
+    for (; head[a] != head[b]; b = parent[head[b]]) {
+        if (depth[head[a]] > depth[head[b]])
+            swap(a, b);
+        int cur_heavy_path_max = query(1, 0, n + 1, pos[head[b]], pos[b]);
+        res = max(res, cur_heavy_path_max);
+    }
+    if (depth[a] > depth[b])
+        swap(a, b);
+    int last_heavy_path_max = query(1, 0, n + 1, pos[a], pos[b]);
+    res = max(res, last_heavy_path_max);
+    return res;
+}
