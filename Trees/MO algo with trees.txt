@@ -1,1 +1,100 @@
-
+vii  adj;
+vi edge_cost;
+vi lvl(N,0),sub(N,1),eul,in(N);
+vi freq(N),al(N);
+mapi mp,mp2;
+bitset<N> me,ou;
+ll block,tim=0;
+void euler(ll node,ll par,ll &time) {
+    in[node] = time++;
+    eul.push_back(edge_cost[node]);
+    for (auto ch: adj[node]) {
+        if (ch == par)continue;
+        lvl[ch] = lvl[node] + 1;
+        euler(ch, node, time);
+        sub[node] += sub[ch];
+    }
+}
+struct query {
+    ll l, r, idx;
+};
+bool cmp(query &a, query &b) {
+    if (a.l / block != b.l / block)
+        return a.l / block < b.l / block;
+    return a.r < b.r;
+}
+void add(ll i,vi &a) {
+    freq[a[i]]++;
+    al[a[i]]--;
+    if (freq[a[i]] ==2)me[N-a[i]]=1;
+    if (al[a[i]] == 1)ou[(N-a[i])]=0;
+}
+void remove(ll i,vi &a) {
+    freq[a[i]]--;
+    al[a[i]]++;
+    if (al[a[i]] == 2)ou[N - (a[i])] = 1;
+    if (freq[a[i]] == 1)me[N - (a[i])] = 0;
+}
+ll getans() {
+    ll zz = 0;
+    ll fff=ll(ou._Find_first());
+    zz = max(zz, N - ll(me._Find_first()));
+    zz = max(zz, N - ll(ou._Find_first()));
+    return zz;
+}
+void solve() {
+    ll n;
+    cin >> n;
+    set<ll> ss;
+    adj.clear(), edge_cost.clear();
+    adj.resize(n + 1), edge_cost.resize(n + 1);
+    vip edj;
+    for (int i = 0; i < n - 1; ++i) {
+        ll x, y;
+        cin >> x >> y;
+        adj[x].push_back(y);
+        adj[y].push_back(x);
+        edj.push_back({x, y});
+    }
+    for (int i = 1; i <= n; ++i) {
+        cin >> edge_cost[i];
+        ss.insert(edge_cost[i]);
+    }
+    ll f = 1;
+    for (auto it: ss) {
+        mp[it] = f;
+        mp2[f++] = it;
+    }
+    for (int i = 1; i <= n; ++i) {
+        edge_cost[i] = mp[edge_cost[i]];
+    }
+    for (int i = 1; i <= n; ++i) {
+        al[edge_cost[i]]++;
+        if (al[edge_cost[i]] == 2)ou[N-edge_cost[i]]=1;
+    }
+    euler(1, 0, tim);
+    block = (ll) sqrt(n) + 1;
+    vector<query> vec(n - 1);
+    for (int i = 0; i < n - 1; ++i) {
+        ll u, v;
+        u = edj[i].first;
+        v = edj[i].second;
+        if (lvl[u] < lvl[v])swap(u, v);
+        vec[i].l = in[u], vec[i].r = in[u] + sub[u] - 1;
+        vec[i].idx = i;
+    }
+    sort(all(vec), cmp);
+    vector<ll> res(n);
+    int l = 0, r = -1;
+    for (int i = 0; i < n - 1; ++i) {
+        query x = vec[i];
+        while (l > x.l)add(--l, eul);
+        while (r < x.r)add(++r, eul);
+        while (l < x.l)remove(l++, eul);
+        while (r > x.r)remove(r--, eul);
+        res[x.idx] = mp2[getans()];
+    }
+    for (int i = 0; i < n - 1; ++i) {
+        cout << res[i] << endl;
+    }
+}
