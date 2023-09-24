@@ -1,1 +1,294 @@
 
+all function work with sqrt(N) / ln(N)       must use sieve 
+ put you should take   additional  prime  greater than sqrt(N)  vip 
+/////greedy D. Bandit in a City
+
+
+D. Same GCDs
+G. Strange Beauty
+Koxia and Number Theory   add x to make array co prime 
+E1. Square-Free Division (easy version)  hashing to get k pow x
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////    num theroy
+
+   (a^b^c ) fermat 
+    ll aa= fastpow(b,c,1e9+6);
+    ll z= fastpow(a,aa,1e9+7);
+
+ll multi(ll a, ll b) {
+    return ((a % MOD * b % MOD) + MOD) % MOD;
+}
+
+ll fastpow(ll a, ll b) {
+    if (b == 0)return ll(1);
+    ll temp = fastpow(a, b / 2);
+    ll total = multi(temp, temp);
+    if (b % 2 == 1) {
+        total = multi(total, a);
+    }
+    return total;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// prime factor && can turn them to get  thier num 
+
+
+order (sqrt(n))
+vi factors(int n) {
+    vi f;
+    for (ll x = 2; x * x <= n; x++) {
+        while (n % x == 0) {
+            f.push_back(x);
+            n /= x;
+        }
+    }
+    if (n > 1) f.push_back(n);
+    return f;
+}
+
+
+can be oreder( sqrt(n) / ln(n))  using prime <=sqrt     get from sieve 
+
+vi primes;
+vi p(N+1,1);
+void sieve() {
+    p[0] = 0;
+    p[1] = 0;
+    for (ll i = 2; i * i <= N; i++) {
+        if (p[i] == 1) {
+            for (ll j = i * 2; j <= N; j += i) {
+                p[j] = 0;
+            }
+        }
+    }
+    // this for use this primes in vec
+    for (int i = 2; i < N; ++i) {
+        if (p[i])primes.push_back(i);
+    }
+}
+
+vi primeFactors(ll N) {                         
+    vi factors;
+    ll PF_idx = 0, PF = primes[PF_idx];
+    while (PF * PF <= N) {
+        while (N % PF == 0) {
+            N /= PF;
+            factors.push_back(PF);
+        }
+        PF = primes[++PF_idx]; 
+    }
+    if (N != 1) factors.push_back(N);
+    return factors;
+}
+
+
+
+
+////////////////to get them in log but cant get their num of each 
+
+vi lp(N+5,1);
+vi mobius(N+5,0);
+void least_prime_factor() {
+    for (ll i = (2); i <= (N); ++i) {
+        lp[i] = i;
+    }
+    lp[0] = 0;
+    lp[1] = 0;
+    for (ll i = 2; i *i <= N; i++) {
+        if (lp[i] == i) {
+            for (ll j = 2 * i; j <= N; j += i) {
+                lp[j] = min(lp[j], i);
+            }
+        }
+    }
+}
+
+  /// after least prime can used mobius     in this int i=1 to get all then sub gcd>1 ---> 2 ,3 -(2,3)  like inclusion 
+///  Mobius is not same as mostafa saad      mob[1]=1;  mostaf mob[1]=-1;
+void Mobius()
+{
+    for(int i=1;i<1000001;i++)
+    {
+        if(i==1) mobius[i]=1;
+        else
+        {
+            if(lp[i/lp[i]]==lp[i]) mobius[i]=0;
+            else mobius[i]=-1*mobius[i/lp[i]];
+        }
+    }
+}
+
+	//to get vec of  diffrent factor
+vi ge_fa(ll n) {
+    vi se;
+    while (n > 1) {
+        if (se.size() == 0 || se.back() != lp[n]) {
+            se.push_back(lp[n]);
+        }
+        n /= lp[n];
+    }
+    return se;
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////num  && sum  of divisor can be sqrt(n) but can only sqrt(N)/ln(N)
+
+ll numDiv(ll N) {
+    ll PF_idx = 0, PF = primes[PF_idx], ans = 1; 
+    while (PF * PF <= N) {
+        ll power = 0; // count the power
+        while (N % PF == 0) {
+            N /= PF;
+            power++;
+        }
+        ans *= (power + 1); // according to the formula
+        PF = primes[++PF_idx];
+    }
+    if (N != 1) ans *= 2; // (last factor has pow = 1, we add 1 to it)
+    return ans;
+}
+
+
+ll sumDiv(ll N) {
+    ll PF_idx = 0, PF = primes[PF_idx], ans = 1; 
+    while (PF * PF <= N) {
+        ll power = 0;
+        while (N % PF == 0) { N /= PF; power++; }
+        ans *= ((ll)pow((double)PF, power + 1.0) - 1) / (PF - 1);
+        PF = primes[++PF_idx];
+    }
+    if (N != 1) ans *= ((ll)pow((double)N, 2.0) - 1) / (N - 1); // last
+    return ans;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////number of numbers <n and coprime with it
+
+N = 36 = 22 ×32. ϕ(36) = 36×(1− 12 )×(1− 13 ) = 12.
+
+ll EulerPhi(ll N) {
+    ll PF_idx = 0, PF = primes[PF_idx], ans = N;
+    while (PF * PF <= N) {
+        if (N % PF == 0) ans -= ans / PF; // only count unique factor
+        while (N % PF == 0) N /= PF;
+        PF = primes[++PF_idx];
+    }
+    if (N != 1) ans -= ans / N;
+    return ans;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////get num of prime factor to range 
+
+Modified Sieve      N log(log(n)) as sieve  ||   numdifPF many times
+
+void Modified Sieve() {
+    memset(numDiffPF, 0, sizeof numDiffPF);
+    for (int i = 2; i < N; i++) {
+        if (numDiffPF[i] == 0)  // prime
+            for (int j = i; j < N; j += i) {
+                numDiffPF[j]++;
+            }
+    }
+}
+
+
+
+/// if we want all 
+
+vector<ll> primes(N+5,1);
+vector<ll>value(N+5);
+vll res(N+5);
+void seive(){
+    fp(i,2,N){
+        primes[i]=i;
+    }
+    primes[0]=0;
+    primes[1]=0;
+    for( ll i=2;i<=N;i++)
+    {
+        if(primes[i]==i){
+            for(ll j=2*i;j<=N;j+=i){
+                primes[j]= min(primes[j],i);
+            }
+        }
+    }
+    fp(i,2,N){
+        value[i]=value[i/primes[i]]+1;
+      //  res[i]=res[i-1];
+        res[i]+=value[i];
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// vippp  get max(gcd(a[i],a[j]) in array 
+
+ N is max num in array 
+
+    vi freq(N+1,0);
+    vi a(n);
+    ll ans=0;
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
+        freq[a[i]]++;
+    }
+    for (int i = N; i >=1 ; --i) {
+        ll count = 0;
+        for (int j = i; j <= N; j += i) {
+            count += freq[j];
+        }
+        if (count > 1) {
+            ans = max(ans, i);
+        }
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////inclusion exclusion
+
+to get num divisble by vec of prime 
+
+    for (int b = 1; b <= (1 << n); b++) {
+        ll now = 1;
+        for (int i = 0; i < n; i++) {
+            if (b & (1 << i)) {
+                if (LONG_LONG_MAX / a[i] <= now) {   // to avoid over flow if num=1e18;
+                    now = k + 1;
+                    break;
+                }
+                now *= a[i];
+            }
+        }
+        if (now != 1) {
+            ll numofdvisor = k / now;
+            if (__builtin_popcount(b) % 2 == 1) {
+                ans += numofdvisor;
+            } else {
+                ans -= numofdvisor;
+            }
+        }
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ vipppppp
+/////// in arrray subset of number which gcd ===i  only i 
+
+
+ll build(){                                             // to get num of numbers divisble by 2    but  it has gcd 4 8 6 ans so on  soooo no inc exu 
+    for (int i = 2; i <N ; ++i) {
+        for (int j = i; j < N; j += i) {
+            mp2[i] = add(mp2[i], mp[j]);
+        }
+    }
+}
+    for (int i = N - 1; i >= 2; --i) {               ///// should start from end to make inc exc علي الضيق 
+        ll has =fastpow(2, mp2[i] - 1);
+        for (int j = i * 2; j < N; j += i) {
+            has = minu(has, dp[j]);
+        }
+        dp[i] = has;
+    }
+
+
+
+
+
+
