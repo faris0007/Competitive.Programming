@@ -1,1 +1,62 @@
 https://atcoder.jp/contests/abc317/tasks/abc317_f
+ll add(ll a, ll b) {
+    return ((a % MOD + b % MOD) + MOD) % MOD;
+}
+ll multi(ll a, ll b) {
+    return ((a % MOD * b % MOD) + MOD) % MOD;
+}
+ll fastpow(ll a, ll b) {
+    if (b == 0)return ll(1);
+    ll temp = fastpow(a, b / 2);
+    ll total = multi(temp, temp);
+    if (b % 2 == 1) {
+        total = multi(total, a);
+    }
+    return total;
+}
+
+vi conv(ll n) {
+    vi v;
+    while (n) {
+        v.push_back(n % 2);
+        n /= 2;
+    }
+    while (v.size() < 64)v.push_back(0);
+    reverse(all(v));
+    return v;
+}
+ll n,a1,a2,a3;
+vi nr1;
+ll dp[64][2][2][2][11][11][11][2][2][2],ans;
+ll fun(ll i,ll e1,ll e2,ll e3,ll md1,ll md2,ll md3,ll u1,ll u2,ll u3) {
+    if (i == nr1.size()) {
+        return md1 == 0 && md2 == 0 && md3 == 0 && u1 && u2 && u3;
+    }
+    if (dp[i][e1][e2][e3][md1][md2][md3][u1][u2][u3] != -1)return dp[i][e1][e2][e3][md1][md2][md3][u1][u2][u3] ;
+    ll opt1 = 0;
+    ll r1 = (e1) ? nr1[i] : 1;
+    ll r2 = (e2) ? nr1[i] : 1;
+    ll r3 = (e3) ? nr1[i] : 1;
+    for (int j = 0; j <= r1; ++j) {
+        for (int k = 0; k <= r2; ++k) {
+            for (int z = 0; z <= r3; ++z) {
+                if (((z ^ j) ^ k) != 0)continue;
+                ll ten1 = (j == nr1[i]);
+                ll ten2 = (k == nr1[i]);
+                ll ten3 = (z == nr1[i]);
+                ll now = 1ll << (63 - i);
+                ll in1 = now * j, in2 = now * k, in3 = now * z;
+                opt1 = add(opt1, fun(i + 1, e1 && ten1, e2 && ten2, e3 && ten3, (md1 + in1) % a1, (md2 + in2) % a2,
+                                     (md3 + in3) % a3,j|u1,k|u2,z|u3));
+            }
+        }
+    }
+    return dp[i][e1][e2][e3][md1][md2][md3][u1][u2][u3]  = opt1;
+}
+void solve() {
+    memset(dp, -1, sizeof(dp));
+    cin >> n >> a1 >> a2 >> a3;
+    nr1 = conv(n);
+    ans = fun(0, 1, 1, 1, 0, 0, 0,0,0,0);
+    cout << ans << endl;
+}
