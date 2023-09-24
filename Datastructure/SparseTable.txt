@@ -1,1 +1,22 @@
 
+ll lg[N];
+void Build_sparce(vii & sp,vi &a) {
+    ll n = a.size();
+    lg[1] = 0;
+    for (int i = 2; i <= n; ++i) {
+        lg[i] = lg[i / 2] + 1;
+    }
+    for (int i = 0; i < n; ++i) {
+        sp[i][0] = a[i];
+    }
+    for (int bits = 1; bits < sp[0].size(); ++bits) {
+        for (int i = 0; i <= (n - (1 << bits)); ++i) {
+            sp[i][bits] = max(sp[i][bits - 1], sp[i + (1 << bits - 1)][bits - 1]);
+        }
+    }
+}
+ll qmax(ll l, ll r, vii &sp) { // zero based;
+    ll dis = lg[r - l + 1];
+    return max(sp[l][dis], sp[r - (1 << dis) + 1][dis]);
+}
+
