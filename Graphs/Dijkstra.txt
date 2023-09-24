@@ -1,1 +1,23 @@
 
+ 
+void dij(ll node , viip &adj ,vi &dis) {
+ 
+    priority_queue<pi> q;
+    q.push({0, node});
+    dis[node]=0;
+    while (q.size()) {
+        pi now = q.top();
+        q.pop();
+        ll no = now.second;
+        ll w = now.first * -1;
+ 
+        if(w > dis[no])		// to improve order
+            continue;
+        for (auto ch: adj[no]) {
+            if (dis[ch.first] > w + ch.second) {
+                dis[ch.first] = w + ch.second;
+                q.push({-dis[ch.first], ch.first});
+            }
+        }
+    }
+}
