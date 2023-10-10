@@ -1,0 +1,105 @@
+https://atcoder.jp/contests/abc322/tasks/abc322_f
+
+MAX Consuctive ones with (substring) and Update LAZY prop
+
+struct bebo {
+    ll sz, pr0, suf0, seg0;
+    ll pr1, suf1, seg1;
+};
+bebo  seg[N<<2];
+ll arr[N<<2],lazy[N<<2];
+bebo merge(bebo a,bebo b) {
+    bebo ret;
+    ret.sz = a.sz + b.sz;
+    ret.seg0 = max({a.seg0, b.seg0, a.suf0 + b.pr0});
+    ret.seg1 = max({a.seg1, b.seg1, a.suf1 + b.pr1});
+    ret.pr0 = a.pr0 + (a.pr0 == a.sz ? b.pr0 : 0);
+    ret.pr1 = a.pr1 + (a.pr1 == a.sz ? b.pr1 : 0);
+    ret.suf0 = b.suf0 + (b.suf0 == b.sz ? a.suf0 : 0);
+    ret.suf1 = b.suf1 + (b.suf1 == b.sz ? a.suf1 : 0);
+    return ret;
+}
+
+void Build_seg(ll node,ll l, ll r) {
+    ll mid = (l + r) / 2;
+    if (l == r) {
+        seg[node].sz=1;
+        if (arr[l] == 0) {
+            seg[node].pr0 = seg[node].suf0 = seg[node].seg0 = 1 - arr[l];
+        } else {
+            seg[node].pr1 = seg[node].suf1 = seg[node].seg1 = arr[l];
+        }
+        return;
+    }
+    Build_seg(node * 2, l, mid);
+    Build_seg(node * 2 + 1, mid + 1, r);
+    seg[node] = merge(seg[node * 2], seg[node * 2 + 1]);
+}
+void propagate(ll node,ll l,ll r) {
+    lazy[node] %= 2;
+    if (lazy[node] == 0) {
+        return;
+    }
+    swap(seg[node].suf0, seg[node].suf1);
+    swap(seg[node].pr0, seg[node].pr1);
+    swap(seg[node].seg0, seg[node].seg1);
+    if (l != r) {
+        lazy[node * 2] += lazy[node];
+        lazy[node * 2 + 1] += lazy[node];
+    }
+    lazy[node] = 0;
+}
+void update(ll node, ll l , ll r, ll st,ll en,ll val) {
+    ll mid = (l + r) / 2;
+    propagate(node, l, r);
+    if (l > en || r < st) {
+        return;
+    }
+    if (l >= st && r <= en) {
+        lazy[node] = val;
+        propagate(node, l, r);
+        return;
+    }
+    update(node * 2, l, mid, st, en, val);
+    update(node * 2 + 1, mid + 1, r, st, en, val);
+    seg[node] = merge(seg[node * 2], seg[node * 2 + 1]);
+}
+bebo queryTree(int node, int start, int end, int qstart, int qend) {
+    propagate(node, start, end);
+    if (qstart > end || qend < start) {
+        bebo zz={0,0,0,0,0,0,0};
+        return zz;
+    } else if (qstart <= start && qend >= end) {
+        return seg[node];
+    } else {
+        int mid = (start + end) / 2;
+        bebo left = queryTree(2 * node, start, mid, qstart, qend);
+        bebo right = queryTree(2 * node + 1, mid + 1, end, qstart, qend);
+        bebo zz = merge(left, right);
+        return zz;
+    }
+}
+void solve() {
+
+    ll n, q;
+    cin >> n >> q;
+    string x;
+    cin >> x;
+    for (int i = 0; i < n; ++i) {
+        arr[i] = x[i] - '0';
+    }
+    Build_seg(1, 0, n);
+    for (int i = 0; i < q; ++i) {
+        ll op;
+        cin >> op;
+        if (op == 1) {
+            ll l, r;
+            cin >> l >> r;
+            update(1, 0, n, l - 1, r - 1, 1);
+        } else {
+            ll l, r;
+            cin >> l >> r;
+            cout << queryTree(1, 0, n, l - 1, r - 1).seg1 << endl;
+        }
+    }
+}
